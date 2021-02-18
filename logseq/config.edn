@@ -1,5 +1,4 @@
-
-  {:journal-basis "daily" 
+{:journal-basis "daily" 
 
  :project {
            ;; Selected public notes can be published to https://logseq.com/your-project-or-your-username.
@@ -17,8 +16,8 @@
  ;; :preferred-format ""
 
  ;; Git settings
- :git-pull-secs 60
- :git-push-secs 10
+ :git-pull-secs 150
+ :git-push-secs 120
  :git-auto-push true
 
  ;; The app will ignore those directories or files.
@@ -29,7 +28,7 @@
  ;; Example for Markdown users: "## [[Work]]\n###\n## [[Family]]\n###\n
  ;; Example for Org mode users: "** [[Work]]\n***\n** [[Family]]\n***\n
  :default-templates
- {:journals ""}
+ {:journals "## #thoughts\n###\n## #dailylearnings\n##\n **Day plan** \n###\n"}
 
  ;; The app will show those queries in today's journal page,
  ;; the "NOW" query asks the tasks which need to be finished "now",
@@ -37,6 +36,22 @@
  :default-queries
  {:journals
   [{:title "🔨 NOW"
+    :query [:find (pull ?h [*])
+            :in $ ?start ?today 
+            :where
+            [?h :block/marker ?marker]
+            [?h :block/page ?p]
+            [?p :page/journal? true]
+            [?p :page/journal-day ?d]
+            [(>= ?d ?start)]
+            [(<= ?d ?today)]
+            [(contains? #{"NOW" "DOING"} ?marker)]]
+    :inputs [:100d :today]
+    :result-transform (fn [result]
+                        (sort-by (fn [h]
+                                   (get h :block/priority "Z")) result))
+    :collapsed? false}
+   {:title "🔨 TODO"
     :query [:find (pull ?h [*])
             :in $ ?start ?today
             :where
@@ -46,11 +61,8 @@
             [?p :page/journal-day ?d]
             [(>= ?d ?start)]
             [(<= ?d ?today)]
-            [(contains? #{"NOW" "DOING"} ?marker)]]
-    :inputs [:14d :today]
-    :result-transform (fn [result]
-                        (sort-by (fn [h]
-                                   (get h :block/priority "Z")) result))
+            [(contains? #{"TODO" "LATER"} ?marker)]]
+    :inputs [:100d :today]
     :collapsed? false}
    {:title "📅 NEXT"
     :query [:find (pull ?h [*])
@@ -62,8 +74,8 @@
             [?p :page/journal-day ?d]
             [(> ?d ?start)]
             [(< ?d ?next)]
-            [(contains? #{"NOW" "LATER" "TODO"} ?marker)]]
-    :inputs [:today :7d-after]
+            [(contains? #{"NOW"} ?marker)]]
+    :inputs [:today :100d-after]
     :collapsed? false}]}
 
  ;; Add your own commands to speedup.
