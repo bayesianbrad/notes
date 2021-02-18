@@ -1,1 +1,6 @@
-## 
+## [[TODOs]]
+## [[Goals]]
+## [[Learnings]]
+## [[Projects]]
+## [[Travel & Houses]]
+## [[week-end reads]]
